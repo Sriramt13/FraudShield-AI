@@ -1,0 +1,125 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.2), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(102, 126, 234, 0.15), transparent 45%),
+    linear-gradient(145deg, #0b1220, #0f172a 50%, #111827);
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.login-card {
+  width: min(460px, 100%);
+  padding: 36px 30px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(34, 211, 238, 0.24);
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.6);
+  backdrop-filter: blur(10px);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-icon {
+  color: #93c5fd;
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.login-card h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.7rem;
+}
+
+.admin-badge {
+  margin: 8px 0 0;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 13px 14px 13px 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  font-size: 15px;
+}
+
+.login-card input::placeholder {
+  color: #94a3b8;
+}
+
+.login-card input:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.primary-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 13px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #eff6ff;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-card p {
+  margin-top: 16px;
+  text-align: center;
+  color: #cbd5e1;
+}
+
+.login-card a {
+  color: #c7d2fe;
+  text-decoration: none;
+}
+
+.login-card a:hover {
+  text-decoration: underline;
+}
+
+.error-box {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fecaca;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}

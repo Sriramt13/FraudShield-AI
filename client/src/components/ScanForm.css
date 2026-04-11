@@ -1,0 +1,130 @@
+.scan-form-container {
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scan-form-card {
+  border: 1px solid rgba(34, 211, 238, 0.24);
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+  color: #c7d2fe;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #e2e8f0;
+}
+
+.scan-textarea {
+  width: 100%;
+  min-height: 130px;
+  resize: vertical;
+  border: 1px solid rgba(34, 211, 238, 0.24);
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.scan-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.scan-textarea:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+}
+
+.keyboard-shortcut-hint {
+  margin: -2px 0 12px;
+  color: #93c5fd;
+  font-size: 0.85rem;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fecaca;
+  padding: 8px 10px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.scan-loading {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+}
+
+.scan-loading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #bfdbfe;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.scan-loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+.scan-loading-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.scan-loading-progress {
+  width: 35%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #93c5fd, #f59e0b);
+  animation: loadingSweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes loadingSweep {
+  0% {
+    transform: translateX(-10%);
+  }
+  50% {
+    transform: translateX(180%);
+  }
+  100% {
+    transform: translateX(-10%);
+  }
+}
+
+.scan-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.scan-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}

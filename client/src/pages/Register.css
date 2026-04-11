@@ -1,0 +1,114 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at 15% 25%, rgba(59, 130, 246, 0.2), transparent 35%),
+    radial-gradient(circle at 75% 75%, rgba(102, 126, 234, 0.16), transparent 40%),
+    linear-gradient(145deg, #0b1220, #0f172a 50%, #111827);
+}
+
+.register-card {
+  width: min(500px, 100%);
+  padding: 34px 30px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(34, 211, 238, 0.24);
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.6);
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.register-icon {
+  color: #93c5fd;
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.register-header h2 {
+  color: #f8fafc;
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.register-card input {
+  width: 100%;
+  padding: 13px 14px 13px 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  font-size: 15px;
+}
+
+.register-card input::placeholder {
+  color: #94a3b8;
+}
+
+.register-card input:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+}
+
+.register-card button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 13px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #eff6ff;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.register-card button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.register-card p {
+  margin-top: 16px;
+  text-align: center;
+  color: #cbd5e1;
+}
+
+.register-card a {
+  color: #c7d2fe;
+  text-decoration: none;
+}
+
+.register-card a:hover {
+  text-decoration: underline;
+}
+
+.error-box {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fecaca;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}

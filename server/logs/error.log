@@ -1,0 +1,7 @@
+{"error":"connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017","level":"error","message":"DB Connection Error","timestamp":"2026-03-28T06:52:23.489Z"}
+{"error":"timeout of 10000ms exceeded","level":"error","message":"Scan Error","timestamp":"2026-04-04T15:38:09.732Z"}
+{"error":"timeout of 10000ms exceeded","level":"error","message":"Scan Error","timestamp":"2026-04-04T16:49:54.474Z"}
+{"error":"timeout of 10000ms exceeded","level":"error","message":"Scan Error","timestamp":"2026-04-04T16:50:18.653Z"}
+{"error":"timeout of 10000ms exceeded","level":"error","message":"Scan Error","timestamp":"2026-04-04T17:34:57.486Z"}
+{"error":"timeout of 10000ms exceeded","level":"error","message":"Scan Error","timestamp":"2026-04-04T17:37:03.147Z"}
+{"error":"timeout of 10000ms exceeded","level":"error","message":"Scan Error","timestamp":"2026-04-04T17:38:54.612Z"}

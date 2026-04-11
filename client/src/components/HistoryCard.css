@@ -1,0 +1,191 @@
+.history-card {
+  background: rgba(15, 23, 42, 0.6);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.15);
+  border-left: 4px solid rgba(102, 126, 234, 0.3);
+  transition: transform 0.22s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.history-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid transparent;
+}
+
+.history-card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.history-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(102, 126, 234, 0.4);
+  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.16);
+}
+
+.history-card.selected {
+  border-color: rgba(96, 165, 250, 0.65);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.35), 0 0 24px rgba(96, 165, 250, 0.2);
+}
+
+.history-card.high-risk {
+  border-left-color: rgba(239, 68, 68, 0.95);
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+.history-card.high-risk:hover,
+.history-card.high-risk.selected {
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.22), 0 0 28px rgba(239, 68, 68, 0.16);
+}
+
+.history-card.suspicious {
+  border-left-color: rgba(245, 158, 11, 0.95);
+  border-color: rgba(245, 158, 11, 0.26);
+}
+
+.history-card.suspicious:hover,
+.history-card.suspicious.selected {
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), 0 0 22px rgba(245, 158, 11, 0.14);
+}
+
+.history-card.safe {
+  border-left-color: rgba(34, 197, 94, 0.95);
+  border-color: rgba(34, 197, 94, 0.24);
+}
+
+.history-card.safe:hover,
+.history-card.safe.selected {
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2), 0 0 22px rgba(34, 197, 94, 0.14);
+}
+
+.history-message {
+  margin: 0 0 15px 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 14px;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.history-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  margin-bottom: 10px;
+}
+
+.category {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-left: 2px solid;
+  transition: all 0.3s ease;
+}
+
+.category.safe {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border-left-color: #22c55e;
+}
+
+.category.safe:hover {
+  background: rgba(34, 197, 94, 0.25);
+}
+
+.category.suspicious {
+  background: rgba(255, 165, 0, 0.15);
+  color: #ffa500;
+  border-left-color: #ffa500;
+}
+
+.category.suspicious:hover {
+  background: rgba(255, 165, 0, 0.25);
+}
+
+.category.high-risk---phishing {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-left-color: #ef4444;
+}
+
+.category.high-risk---phishing:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.score {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(102, 126, 234, 0.1);
+  min-width: 45px;
+  text-align: center;
+}
+
+.history-date {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.history-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.history-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  background: rgba(59, 130, 246, 0.12);
+  color: #dbeafe;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.history-action-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(147, 197, 253, 0.5);
+  background: rgba(59, 130, 246, 0.22);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.16);
+}
+
+.history-click-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #93c5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 768px) {
+  .history-card {
+    padding: 16px;
+  }
+
+  .history-meta {
+    gap: 8px;
+  }
+}
