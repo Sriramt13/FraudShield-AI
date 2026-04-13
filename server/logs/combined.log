@@ -207,3 +207,6 @@
 {"level":"info","message":"MongoDB Connected","timestamp":"2026-04-08T17:52:10.945Z"}
 {"email":"admin@srt.com","level":"info","message":"Synced existing admin credentials from environment","timestamp":"2026-04-08T17:52:11.048Z"}
 {"level":"info","message":"Server running on port 4000","timestamp":"2026-04-08T17:52:11.074Z"}
+{"level":"info","message":"MongoDB Connected","timestamp":"2026-04-13T05:04:47.402Z"}
+{"email":"admin@srt.com","level":"info","message":"Default admin account ensured","timestamp":"2026-04-13T05:04:48.279Z"}
+{"level":"info","message":"Server running on port 4000","timestamp":"2026-04-13T05:04:48.299Z"}
