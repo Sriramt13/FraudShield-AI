@@ -8,12 +8,14 @@ dotenv.config();
 
 const env = {
   JWT_SECRET: process.env.JWT_SECRET,
-  ML_SERVICE_URL: process.env.ML_SERVICE_URL,
+  ML_SERVICE_URL: process.env.ML_SERVICE_URL || "https://ml-service-m56n.onrender.com",
   MONGO_URI: process.env.MONGO_URI,
   ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
   ADMIN_NAME: process.env.ADMIN_NAME
 };
+
+logger.info("Configured ML service URL", { mlServiceUrl: env.ML_SERVICE_URL });
 
 await connectDB(env.MONGO_URI);
 await ensureDefaultAdmin(env);
