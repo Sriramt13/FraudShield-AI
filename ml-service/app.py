@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pickle
+import pandas as pd
 import re
 from urllib.parse import urlparse
 import datetime
@@ -10,6 +11,8 @@ import whois
 import requests
 import os
 from dotenv import load_dotenv
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 
 # ===============================
 # LOAD ENV VARIABLES
@@ -28,6 +31,33 @@ CORS(app)
 # ===============================
 # LOAD ML MODEL
 # ===============================
+def train_fallback_model():
+    try:
+        df = pd.read_csv("spam.csv", usecols=[0, 1], encoding="latin-1")
+        df.columns = ["label", "message"]
+        df = df.dropna(subset=["label", "message"])
+
+        y = (df["label"].astype(str).str.lower() == "spam").astype(int)
+        texts = df["message"].astype(str)
+
+        fallback_vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=2)
+        X = fallback_vectorizer.fit_transform(texts)
+
+        fallback_model = LogisticRegression(max_iter=1000)
+        fallback_model.fit(X, y)
+
+        with open("phishing_model.pkl", "wb") as f:
+            pickle.dump(fallback_model, f)
+
+        with open("vectorizer.pkl", "wb") as f:
+            pickle.dump(fallback_vectorizer, f)
+
+        return fallback_model, fallback_vectorizer
+    except Exception as train_error:
+        print("❌ Fallback model training failed:", train_error)
+        return None, None
+
+
 try:
     with open("phishing_model.pkl", "rb") as f:
         model = pickle.load(f)
@@ -39,8 +69,12 @@ try:
 
 except Exception as e:
     print("❌ Model loading failed:", e)
-    model = None
-    vectorizer = None
+    model, vectorizer = train_fallback_model()
+    if model is not None and vectorizer is not None:
+        print("✅ Fallback model trained and loaded")
+    else:
+        model = None
+        vectorizer = None
 
 
 # ===============================

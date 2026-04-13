@@ -6,8 +6,9 @@ export const callMLService = async (message, mlUrl) => {
   }
 
   const normalizedUrl = mlUrl.replace(/\/+$/, "");
+  const predictUrl = normalizedUrl.endsWith("/predict") ? normalizedUrl : `${normalizedUrl}/predict`;
 
-  const response = await axios.post(`${normalizedUrl}/predict`, { message }, { timeout: 30000 });
+  const response = await axios.post(predictUrl, { message }, { timeout: 30000 });
 
   return response.data;
 };
