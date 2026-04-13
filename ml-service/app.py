@@ -239,10 +239,6 @@ def health():
 # ===============================
 @app.route("/predict", methods=["POST"])
 def predict():
-
-    if model is None or vectorizer is None:
-        return jsonify({"error": "Model not loaded"}), 500
-
     data = request.get_json()
 
     if not data or "message" not in data:
@@ -261,9 +257,9 @@ def predict():
         message = "URL only: " + message
 
     # ================= ML SCORE =================
-    transformed = vectorizer.transform([message])
-    probability = model.predict_proba(transformed)[0][1]
-    ml_score = round(probability * 40, 2)
+    # If model artifacts are unavailable in production, keep service functional
+    # by deriving a conservative fallback probability from suspicious keywords.
+    probability = None
 
     # ================= KEYWORD SCORE =================
     suspicious_words = [
@@ -275,6 +271,15 @@ def predict():
 
     found_keywords = [w for w in suspicious_words if w in lower_msg]
     keyword_score = min(len(found_keywords) * 3, 15)
+
+    if model is not None and vectorizer is not None:
+        transformed = vectorizer.transform([message])
+        probability = float(model.predict_proba(transformed)[0][1])
+    else:
+        # Map keyword intensity into a bounded pseudo-probability.
+        probability = min(0.85, 0.08 + (len(found_keywords) * 0.08))
+
+    ml_score = round(probability * 40, 2)
 
     # ================= CONTEXT =================
     context_adjustment = 0
