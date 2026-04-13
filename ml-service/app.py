@@ -21,6 +21,10 @@ load_dotenv()
 SAFE_BROWSING_KEY = os.getenv("GOOGLE_SAFE_BROWSING_KEY")
 WHOIS_TIMEOUT_SECONDS = 2
 WHOIS_EXECUTOR = ThreadPoolExecutor(max_workers=2)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "phishing_model.pkl")
+VECTORIZER_PATH = os.path.join(BASE_DIR, "vectorizer.pkl")
+DATASET_PATH = os.path.join(BASE_DIR, "spam.csv")
 
 # ===============================
 # INIT APP
@@ -33,7 +37,7 @@ CORS(app)
 # ===============================
 def train_fallback_model():
     try:
-        df = pd.read_csv("spam.csv", usecols=[0, 1], encoding="latin-1")
+        df = pd.read_csv(DATASET_PATH, usecols=[0, 1], encoding="latin-1")
         df.columns = ["label", "message"]
         df = df.dropna(subset=["label", "message"])
 
@@ -46,11 +50,15 @@ def train_fallback_model():
         fallback_model = LogisticRegression(max_iter=1000)
         fallback_model.fit(X, y)
 
-        with open("phishing_model.pkl", "wb") as f:
-            pickle.dump(fallback_model, f)
+        # Best effort cache for faster future startups.
+        try:
+            with open(MODEL_PATH, "wb") as f:
+                pickle.dump(fallback_model, f)
 
-        with open("vectorizer.pkl", "wb") as f:
-            pickle.dump(fallback_vectorizer, f)
+            with open(VECTORIZER_PATH, "wb") as f:
+                pickle.dump(fallback_vectorizer, f)
+        except Exception as persist_error:
+            print("WARN: Could not persist fallback model artifacts:", persist_error)
 
         return fallback_model, fallback_vectorizer
     except Exception as train_error:
@@ -59,19 +67,19 @@ def train_fallback_model():
 
 
 try:
-    with open("phishing_model.pkl", "rb") as f:
+    with open(MODEL_PATH, "rb") as f:
         model = pickle.load(f)
 
-    with open("vectorizer.pkl", "rb") as f:
+    with open(VECTORIZER_PATH, "rb") as f:
         vectorizer = pickle.load(f)
 
-    print("✅ ML Model Loaded Successfully")
+    print("ML model loaded successfully")
 
 except Exception as e:
-    print("❌ Model loading failed:", e)
+    print("Model loading failed:", e)
     model, vectorizer = train_fallback_model()
     if model is not None and vectorizer is not None:
-        print("✅ Fallback model trained and loaded")
+        print("Fallback model trained and loaded")
     else:
         model = None
         vectorizer = None
@@ -239,126 +247,164 @@ def health():
 # ===============================
 @app.route("/predict", methods=["POST"])
 def predict():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    if not data or "message" not in data:
-        return jsonify({"error": "Message field is required"}), 400
+        if not data or "message" not in data:
+            return jsonify({"error": "Message field is required"}), 400
 
-    message = data.get("message", "").strip()
-    if message == "":
-        return jsonify({"error": "Message cannot be empty"}), 400
+        message = data.get("message", "").strip()
+        if message == "":
+            return jsonify({"error": "Message cannot be empty"}), 400
 
-    lower_msg = message.lower()
-    extracted = extract_url(message)
-    url = normalize_url(extracted)
+        lower_msg = message.lower()
+        extracted = extract_url(message)
+        url = normalize_url(extracted)
 
-    # Improve ML context for URL-only input
-    if url and (message == extracted or message == url):
-        message = "URL only: " + message
+        # Improve ML context for URL-only input
+        if url and (message == extracted or message == url):
+            message = "URL only: " + message
 
-    # ================= ML SCORE =================
-    # If model artifacts are unavailable in production, keep service functional
-    # by deriving a conservative fallback probability from suspicious keywords.
-    probability = None
+        # ================= ML SCORE =================
+        # If model artifacts are unavailable in production, keep service functional
+        # by deriving a conservative fallback probability from suspicious keywords.
+        probability = None
 
-    # ================= KEYWORD SCORE =================
-    suspicious_words = [
-        "urgent", "verify", "bank", "account",
-        "login", "password", "click", "winner",
-        "free", "kyc", "suspended", "claim",
-        "limited", "offer", "otp"
-    ]
+        # ================= KEYWORD SCORE =================
+        suspicious_words = [
+            "urgent", "verify", "bank", "account",
+            "login", "password", "click", "winner",
+            "free", "kyc", "suspended", "claim",
+            "limited", "offer", "otp"
+        ]
 
-    found_keywords = [w for w in suspicious_words if w in lower_msg]
-    keyword_score = min(len(found_keywords) * 3, 15)
+        found_keywords = [w for w in suspicious_words if w in lower_msg]
+        keyword_score = min(len(found_keywords) * 3, 15)
 
-    if model is not None and vectorizer is not None:
-        transformed = vectorizer.transform([message])
-        probability = float(model.predict_proba(transformed)[0][1])
-    else:
-        # Map keyword intensity into a bounded pseudo-probability.
-        probability = min(0.85, 0.08 + (len(found_keywords) * 0.08))
+        if model is not None and vectorizer is not None:
+            transformed = vectorizer.transform([message])
+            probability = float(model.predict_proba(transformed)[0][1])
+        else:
+            # Map keyword intensity into a bounded pseudo-probability.
+            probability = min(0.85, 0.08 + (len(found_keywords) * 0.08))
 
-    ml_score = round(probability * 40, 2)
+        ml_score = round(probability * 40, 2)
 
-    # ================= CONTEXT =================
-    context_adjustment = 0
-    if "don't click" in lower_msg or "do not click" in lower_msg:
-        context_adjustment -= 8
+        # ================= CONTEXT =================
+        context_adjustment = 0
+        if "don't click" in lower_msg or "do not click" in lower_msg:
+            context_adjustment -= 8
 
-    # ================= URL ANALYSIS =================
-    url_score = 0
-    url_details = {}
-    domain_age_score = 0
-    domain_age_days = None
-    reputation_score = 0
-    flagged_by_google = False
+        # ================= URL ANALYSIS =================
+        url_score = 0
+        url_details = {}
+        domain_age_score = 0
+        domain_age_days = None
+        reputation_score = 0
+        flagged_by_google = False
 
-    if url:
-        url_score, url_details = analyze_url_features(url)
+        if url:
+            url_score, url_details = analyze_url_features(url)
 
-        domain_age_days = get_domain_age(url)
-        if domain_age_days is not None:
-            if domain_age_days < 30:
-                domain_age_score = 15
-            elif domain_age_days < 90:
-                domain_age_score = 8
+            domain_age_days = get_domain_age(url)
+            if domain_age_days is not None:
+                if domain_age_days < 30:
+                    domain_age_score = 15
+                elif domain_age_days < 90:
+                    domain_age_score = 8
 
-        flagged_by_google = check_safe_browsing(url)
+            flagged_by_google = check_safe_browsing(url)
+            if flagged_by_google:
+                reputation_score = 30
+
+        # ================= FINAL SCORE =================
+        final_score = (
+            ml_score +
+            keyword_score +
+            url_score +
+            domain_age_score +
+            reputation_score +
+            context_adjustment
+        )
+
+        final_score = min(max(round(final_score, 2), 0), 100)
+
+        # Deterministic safety overrides for clearly suspicious URL patterns.
         if flagged_by_google:
-            reputation_score = 30
+            final_score = max(final_score, 85)
 
-    # ================= FINAL SCORE =================
-    final_score = (
-        ml_score +
-        keyword_score +
-        url_score +
-        domain_age_score +
-        reputation_score +
-        context_adjustment
-    )
+        if url and (
+            url_details.get("ip_based")
+            or url_details.get("punycode_domain")
+            or (url_details.get("url_shortener") and keyword_score >= 3)
+        ):
+            final_score = max(final_score, 65)
 
-    final_score = min(max(round(final_score, 2), 0), 100)
+        if final_score <= 30:
+            category = "Safe"
+        elif final_score <= 60:
+            category = "Suspicious"
+        else:
+            category = "High Risk - Phishing"
 
-    # Deterministic safety overrides for clearly suspicious URL patterns.
-    if flagged_by_google:
-        final_score = max(final_score, 85)
+        return jsonify({
+            "category": category,
+            "risk_score": final_score,
+            "confidence_percent": round(probability * 100, 2),
+            "url_found": url,
+            "url_clickable": url is not None,
+            "risk_breakdown": {
+                "ml_score": ml_score,
+                "keyword_score": keyword_score,
+                "url_structure_score": url_score,
+                "domain_age_score": domain_age_score,
+                "reputation_score": reputation_score,
+                "context_adjustment": context_adjustment
+            },
+            "security_analysis": {
+                "keyword_flags": found_keywords,
+                "url_analysis": url_details,
+                "domain_age_days": domain_age_days,
+                "flagged_by_google_safe_browsing": flagged_by_google
+            }
+        })
+    except Exception as predict_error:
+        print("Predict route failed:", predict_error)
 
-    if url and (
-        url_details.get("ip_based")
-        or url_details.get("punycode_domain")
-        or (url_details.get("url_shortener") and keyword_score >= 3)
-    ):
-        final_score = max(final_score, 65)
+        payload = request.get_json(silent=True) or {}
+        fallback_text = str(payload.get("message", "")).lower()
+        fallback_flags = [
+            w for w in ["urgent", "verify", "login", "password", "bank", "otp", "suspended", "claim", "winner", "free"]
+            if w in fallback_text
+        ]
+        fallback_score = min(30 + (len(fallback_flags) * 7), 92)
+        fallback_category = "Safe"
+        if fallback_score > 60:
+            fallback_category = "High Risk - Phishing"
+        elif fallback_score > 30:
+            fallback_category = "Suspicious"
 
-    if final_score <= 30:
-        category = "Safe"
-    elif final_score <= 60:
-        category = "Suspicious"
-    else:
-        category = "High Risk - Phishing"
-
-    return jsonify({
-        "category": category,
-        "risk_score": final_score,
-        "confidence_percent": round(probability * 100, 2),
-        "url_found": url,
-        "url_clickable": url is not None,
-        "risk_breakdown": {
-            "ml_score": ml_score,
-            "keyword_score": keyword_score,
-            "url_structure_score": url_score,
-            "domain_age_score": domain_age_score,
-            "reputation_score": reputation_score,
-            "context_adjustment": context_adjustment
-        },
-        "security_analysis": {
-            "keyword_flags": found_keywords,
-            "url_analysis": url_details,
-            "domain_age_days": domain_age_days,
-            "flagged_by_google_safe_browsing": flagged_by_google
-        }
-    })
+        return jsonify({
+            "category": fallback_category,
+            "risk_score": fallback_score,
+            "confidence_percent": min(50 + len(fallback_flags) * 5, 90),
+            "url_found": None,
+            "url_clickable": False,
+            "risk_breakdown": {
+                "ml_score": 0,
+                "keyword_score": fallback_score,
+                "url_structure_score": 0,
+                "domain_age_score": 0,
+                "reputation_score": 0,
+                "context_adjustment": 0
+            },
+            "security_analysis": {
+                "keyword_flags": fallback_flags,
+                "url_analysis": {},
+                "domain_age_days": None,
+                "flagged_by_google_safe_browsing": False
+            }
+        })
 
 
 # ===============================
@@ -366,7 +412,7 @@ def predict():
 # ===============================
 @app.route("/")
 def home():
-    return "🛡 AI Fraud Detection ML Service Running"
+    return "AI Fraud Detection ML Service Running"
 
 
 @app.route("/favicon.ico")
